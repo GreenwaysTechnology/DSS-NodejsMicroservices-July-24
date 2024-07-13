@@ -729,10 +729,164 @@ let login = (userName, password, resolve, reject) => {
 // })
 login('admin', 'admin', status => console.log(status), err => console.log(err))
 ................&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&......................................
+			Objects
+....................................................................................
+		
+Objects can be created in two ways
+
+1.constructors pattern
+   es 5 functions 
+   es 6 classes
+2.literal pattern
 
 
+functions:
 
+function Customer() {
+    //instance variables
+    this.id = 1
+    this.name = 'Subramanian'
+    //instance methods
+    this.createInvoice = function () {
+        return 'invoice is created'
+    }
+}
+//create object
+//customer is just reference variable
+//new is operator
+//Customer() is constructor call
+let customer = new Customer();
+console.log(customer.id,customer.name,customer.createInvoice())
 
+Use case: simple class
+//es 6 class
 
+class Customer {
+    //instance variable
+    id = 1
+    name = 'Subrmanian'
+    createInvoice() {
+        return 'Invoice is created'
+    }
+}
 
+//customer is variable
+
+let customer = new Customer();
+console.log(customer.id,customer.name,customer.createInvoice())
+
+Use case : constructor 
+
+//es 6 class
+
+class Customer {
+    //instance variable
+    id
+    name
+    constructor(id = 1, name = 'name') {
+        this.id = id
+        this.name = name
+    }
+    createInvoice() {
+        return 'Invoice is created'
+    }
+}
+
+//customer is variable
+
+let customer = new Customer();
+console.log(customer.id, customer.name, customer.createInvoice())
+
+customer = new Customer(2,'Subramanian');
+console.log(customer.id, customer.name, customer.createInvoice())
+................................................................................
+Inheritance:
+class Account {
+    constructor() {
+        console.log('Account constructor')
+    }
+    deposit() {
+        return 100
+    }
+}
+class SavingsAccount extends Account {
+    constructor() {
+        super()
+        console.log('SavingsAccount constructor')
+    }
+    //method redefining:(overriding)
+    deposit(){
+        return 1000 + super.deposit()
+    }
+   
+}
+let sb = new SavingsAccount()
+console.log(sb.deposit())
+....................................................................................
+			Literal Objects
+.....................................................................................
+
+syntax:
+
+let variable = {
+  key:value,
+  key:value
+}
+let employee = {
+    id: 1,
+    name: 'Subramanian',
+    status: true,
+    address: {
+        city: 'Coimbatore'
+    }
+}
+console.log(employee.id, employee.name, employee.status, employee.address.city)
+console.log(employee)
+
+Javascripts supports lot of built in objects
+.............................................
+
+1.Browser related objects
+ window,document,history,sessionStorage,localStorage etc...
+
+2.Plain objects/POJOs
+
+1.Object - Super Most parent object
+2.Array - To implement ds in js - List
+3.JSON  - Json Parser Object
+4.String
+5.Number
+6.Boolean
+7.Math
+etc....
+
+Array:
+......
+ Array is object which holds any type of data including other arrays.
+ Since array object has many methods.
+
+let numberList = [1, 2, 3, 4, 5, 6];
+//iterators
+numberList.forEach(value => {
+    console.log(value)
+})
+
+let employeeList = [
+    {
+        id: 1,
+        name: 'Ram'
+    },
+    {
+        id: 2,
+        name: 'Subramanian'
+    },
+    {
+        id: 1,
+        name: 'Kumar'
+    }
+]
+employeeList.forEach(emp=>{
+    console.log(emp.id,emp.name)
+})
+......................................................................................
 

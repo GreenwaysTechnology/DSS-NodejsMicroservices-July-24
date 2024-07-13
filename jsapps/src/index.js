@@ -1,16 +1,23 @@
+let numberList = [1, 2, 3, 4, 5, 6];
+//iterators
+numberList.forEach(value => {
+    console.log(value)
+})
 
-//passing function as parameter
-
-let login = (userName, password, resolve, reject) => {
-    if (userName === 'admin' && password === 'admin') {
-        resolve('login success')
-    } else {
-        reject('login failed')
+let employeeList = [
+    {
+        id: 1,
+        name: 'Ram'
+    },
+    {
+        id: 2,
+        name: 'Subramanian'
+    },
+    {
+        id: 1,
+        name: 'Kumar'
     }
-}
-// login('admin', 'admin', (status) => {
-//     console.log(status)
-// }, (err) => {
-//     console.log(err)
-// })
-login('admin', 'admin', status => console.log(status), err => console.log(err))
+]
+employeeList.forEach(emp=>{
+    console.log(emp.id,emp.name)
+})
