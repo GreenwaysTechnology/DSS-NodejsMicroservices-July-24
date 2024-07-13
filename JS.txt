@@ -1,0 +1,738 @@
+
+Javascript
+
+Node fundamentals
+
+Express 
+
+Microservices and implementation - moleculer.js
+
+
+node
+vs code
+
+.....................................................................................
+			Java script
+.....................................................................................
+
+What is Javascript?
+   Java script is object based, functional style programming language.
+
+What is Object based? What is object oriented?
+
+
+Object Orientation:
+..................
+
+ Object orientation is style of architecting apps.
+
+IS there is any other styles?
+
+1.Producure oriented style
+2.Object oriented style
+3.Functional programming style
+
+Object oriented Programming:  
+  Collection of object oriented principles.
+
+OO Principles:
+..............
+1.Abstraction - Describes how to collect and analysis req -class,interface
+2.Encaspulation - Tells how to share code and how to not share code
+3.Modularity - How to break the code into files and folders - namepaces
+4.Hierachy - how to establish realtionship among classes - is-a(inheritance),has-a(dependency)
+5.Typing - Data Types - Strong typing,weak Typing- Polymorphism (only for                         polymorphism)
+ 
+  Strong Typing:
+     int a =10;
+   here a's type is verified during compile time
+    a="hello" 
+   here compiler catches error.
+  The type of variable is verified during compile time
+
+ var a =10
+   here a's type is not verifed during compile time rather runtime.
+  These types are called weak typed.
+.................
+6.Concurrency -  Processing represenation - threads
+7.Persistancy - Storage
+
+C# is object oriented language.
+
+if any programming language follows oo 1 to 5 principles , those languages called as "Object oriented Language".
+
+if any programming language does not follow oo 1 to 5 principles completly or partially , those languages called as "Object based Language".
+
+Functional Programming:
+  It is also style of programming..
+
+SOme programming languages follows single style - c++ - object oriented language
+Some programming languages follows multiple style - hybrid language.
+
+JS is hybrid language.
+  It supports both object based and functional language.
+....................................................................................
+
+Javascript language runtime Environment:
+........................................
+
+Life cycle of programming
+
+C#
+1.source code  - hello.css  -english
+2.compiled code - hello.dll - assembly
+...............................Dev Cycle
+3.Excutable code  -----Runtime - CLR
+
+JS:
+1.source code - hello.js 
+    |
+  compiled --->
+
+JS Runtime:
+  It is program which is responsible for loading,parsing,compiling,running js code.
+
+Where is js runtime?
+  Every browser has embeded js runtime.
+Chrome-V8
+Edge - Chakra
+Firefox - Spider Monkey
+ 
+ Js engine is available outside browser too, which is called "Node.js"
+
+...................................................................................
+			 language
+...................................................................................
+
+Versions:
+ Js language was created by Netscap communications on 1995.
+
+ After javascript language created, the language was submitted to standard body called "ECMA" international.
+
+After that Js was called as ECMA Script or ES.
+
+After submission, the language was standarized and released by committee.
+
+1.ES 1.0 -->1996
+2.ES 3.0 -->1999
+3.ES 4.0 -->2006
+4.ES 5.0 --->2007
+5.ES 6.0 --->2012-2015
+6.ES 7.0 ----->2016
+ still growing but up to es 7 is stable and in production....
+etc.....
+
+Javascript learning path(ES6):
+..............................
+1.Language fundamentals
+2.Functions 
+3.Objects
+
+1.Language fundamentals
+ ->Variables
+ ->Literals
+ ->Type Systems
+
+
+1.Language fundamentals:
+
+variables,type system,values(literals)
+
+var,let,const
+
+literals:(values)
+
+  literal   - type
+....................
+  string    - string
+  number    - number
+  boolean   - boolean
+  undfined   - undefined
+  NaN       - number
+  Infinity  - number
+  function  - function
+  object    - object
+  null      - object
+
+type system;
+
+1.string
+2.number
+3.object
+4.boolean
+5.undefined
+6.function
+
+Project setup:
+.............
+:\DSS>mkdir jsapps
+G:\DSS>cd jsapps
+
+G:\DSS\jsapps>
+G:\DSS\jsapps>mkdir src
+G:\DSS\jsapps>code .
+
+src/index.js
+console.log("Hello")
+
+Running:
+ Note: now i will show how to run inside browser only, later we will see in node.js
+
+How ot run? 
+ you have to install "plugin" webserver.
+
+Steps:
+ VS code-->Extensions--->type live server---install live server -restart vs code.
+
+After restarting,right click on index.html, lanuch the app.
+and see in the browser console.
+....................................................................................
+				Variables,data types,Literals
+.....................................................................................
+
+JS is dynamically typed,so type is not declared in advance, type of variables are decided during runtime, based on "literals-values"
+
+Js has 9 literals but only 6 types.
+
+strings,numbers,boolean,undefined,object,function- types
+
+//strings
+
+let firstName="Subramanian"
+let lastName='Murugan'
+//back tick and string interpolation: es 6 feature
+//let fullName = firstName + lastName
+let fullName =`${firstName} ${lastName}`
+console.log("Your Name " + fullName)
+console.log("Your Name",fullName)
+console.log(`Your name ${fullName}`)
+
+
+Numbers:
+ only type called number 
+ 64 bit aka double.
+
+//numbers
+let qty = 10
+let price = 10.45
+let total = qty * price
+console.log(`Total ${total}`)
+
+
+Booleans:
+ true or false
+
+//true or false 
+
+//boolean
+let isLoggedIn = true
+let isDisabled = false
+
+console.log(`Is LoggedIn ${isLoggedIn} Is Disabled ${isDisabled}`)
+
+
+Undefined:
+ Variable is declared without any valid value.
+//undefined
+
+let qty;
+console.log(`Quantity ${qty}`)
+
+NaN : Not a Number
+
+NaN is number only which represents "error".
+If you do any numerical computation, if computation is failed you will get NaN.
+NaN is kind of "error".
+if you get NaN you have to fix beacuse is bug
+
+NaN Use case:
+if you do computation against undefined values, you get NaN.
+
+let qty
+let price=100
+let total = qty * price 
+
+console.log(`Qty ${qty} Price ${price} Total ${total}`)
+
+
+Infinity:
+  Div/0
+//infnity
+let price = 100;
+let avgPrice = price / 0
+console.log(`Avg Price ${avgPrice}`)
+
+
+..................................................................................
+			Advanced Boolean
+..................................................................................
+What can be true or false?
+
+decision making : if..else ,tenary operator
+
+in javascript is every thing is true execept the following values 
+
+Falsy values
+
+ * 
+ *  1.boolean false
+ *  2.Empty string "" ,''
+ *  3.0
+ *  4.undefined
+ *  5.NaN
+ *  6.null
+ */
+
+
+
+
+let message = 'Hello'
+
+if (message) {
+    console.log(message)
+} else {
+    console.log('wrong')
+}
+message = ''
+if (message) {
+    console.log(message)
+} else {
+    console.log('wrong')
+}
+let myvar;
+if (myvar) {
+    console.log(`MyVar is ${myvar}`)
+} else {
+    console.log(`False : MyVar is ${myvar}`)
+}
+myvar = 0
+if (myvar) {
+    console.log(`MyVar is ${myvar}`)
+} else {
+    console.log(`False : MyVar is ${myvar}`)
+}
+myvar = false
+if (myvar) {
+    console.log(`MyVar is ${myvar}`)
+} else {
+    console.log(`False : MyVar is ${myvar}`)
+}
+myvar = NaN
+if (myvar) {
+    console.log(`MyVar is ${myvar}`)
+} else {
+    console.log(`False : MyVar is ${myvar}`)
+}
+
+....................................................................................
+				Operator -Equal
+.....................................................................................
+
+== ->Double equal
+=== ->Triple equal
+!=
+!==
+
+let a = 100
+let b = 100
+if (a == b) {
+    console.log('a and b are equal')
+} else {
+    console.log('a and b are not equal')
+}
+
+let x = 100
+let y = "100"
+
+if (x == y) {
+    console.log('x and y are equal')
+} else {
+    console.log('x and y are not equal')
+}
+
+if (x === y) {
+    console.log('x and y are equal')
+} else {
+    console.log('x and y are not equal')
+}
+.....................................................................................
+			 const
+....................................................................................
+
+let vs const
+
+const 
+ readonly,
+ we cant reinitalize the variable
+
+let a=10
+console.log(`a value is ${a}`)
+a=900
+console.log(`a value is ${a}`)
+
+const b=100;
+console.log(`b value is ${b}`)
+//you cant reinitalize
+b=900
+.....................................................................................
+			    functions
+
+functions are building block of javascript language.
+functions encapsulate the logic of application.
+functions may take args and return values
+
+.....................................................................................
+			   Functions
+....................................................................................
+functions are building block of javascript language.
+functions encapsulate the logic of application.
+functions may take args and return values
+
+
+//function declaration
+function sayHello(){
+    console.log('hello')
+}
+//function invocation
+sayHello()
+
+Function args and parameters:
+..............................
+
+
+//default arg
+function sayHello(name = 'Default Name') {
+    console.log('Your name is ', name)
+}
+//with parameter
+sayHello('Subramanian')
+//without parameter : undefined will be passed as default value
+sayHello()
+
+function multiply(a = 0, b = 0) {
+    let c = a * b
+    console.log('Result is ', c)
+}
+multiply(10, 10)
+multiply()
+
+....................................................................................
+			 Return values
+....................................................................................
+
+//default arg
+function sayHello(name = 'Default Name') {
+   return name;
+}
+//with parameter
+console.log(sayHello('Subramanian'))
+//without parameter : undefined will be passed as default value
+console.log(sayHello())
+
+function multiply(a = 0, b = 0) {
+    let c = a * b
+    return c 
+}
+let res= multiply(10, 10)
+console.log(res)
+....................................................................................
+			Functional Programming and its principles
+....................................................................................
+
+What is functional programming?
+
+  It is type of programming paradigm.
+
+functional programming is the first programming paradagim introduced in 1935, as part of Mathmetics called "Lambda Calculus"
+
+https://en.wikipedia.org/wiki/Lambda_calculus
+https://en.wikipedia.org/wiki/Alonzo_Church
+
+Js has implemented many functional programming principles.
+
+1.function is first class citizen
+   function is value like other values such as numbers,strings,booleans,objects...
+
+2.higher order functions
+   Since function is value , which can be passed as parameter to another function
+ and also we can return from the functions.
+
+3.Pure functions and immutablity
+  
+4.Curry functions
+
+etc....
+
+The first functional programming language.
+ LISP
+
+Lisp is parent language for all modern all functional languages.
+
+ JS is dervied from the language called "Scheme" is a newer dialect of an old language named Lisp.
+
+.....................................................................................
+
+		 1.function is first class citizen
+
+ function is value like other values such as numbers,strings,booleans,objects...
+ when ever function is assigned into a variable, we can use that variable to invoke that function
+
+anonymous function:
+  function without name.
+
+eg:
+ let a =10
+  a =variable
+  10=value
+
+
+let a
+a = 10
+
+function sayHello() {
+    console.log('hello')
+}
+
+let hello = sayHello
+hello()
+
+//syntax
+let b = 10
+
+//named function: it is not popular
+// let hai = function sayHai() {
+//     console.log('hai')
+// }
+
+//anonymous function : function without name
+let hai = function () {
+    console.log('hai')
+}
+hai()
+
+....................................................................................
+
+Anonymous functions parameters ,args,returns:
+............................................
+
+
+let add = function (a = 0, b = 0) {
+    return a + b
+}
+
+let result = add(10,10)
+console.log(`Result is ${result}`)
+....................................................................................
+			Higher order functions
+....................................................................................
+
+1.Passing function as parameter
+2.Returning function 
+
+1.Passing function as parameter
+
+Use case : simple function
+
+//
+//a =x, b=y
+function add(a, b) {
+    return a + b;
+}
+let x = 10;
+let y = 20;
+console.log(add(x, y))
+console.log(add(10, 10))
+
+//higher order fun
+//greet = hello =  function(){}
+function sayGreet(greet) {
+    greet()
+}
+let hello = function () {
+    console.log('hello')
+}
+sayGreet(hello)
+
+//passing hardcoded function
+sayGreet(function () {
+    console.log('welcome')
+})
+
+
+
+Use case :passing parameters and return values from hof:
+function sayGreet(greet) {
+    let status = greet('welcome')
+    console.log(status)
+}
+let hello = function (message) {
+    console.log(message)
+    return 'processed'
+}
+sayGreet(hello)
+
+//passing hardcoded function
+sayGreet(function (message) {
+    console.log(message)
+    return "processed"
+})
+..........................
+Use case : passing paramers with some logic - more functions as parameter.
+
+function login(userName, password, resolve, reject) {
+    if (userName === 'admin' && password === 'admin') {
+        resolve('login success')
+    } else {
+        reject('login failed')
+    }
+}
+
+login('admin', 'admin', function (status) {
+    console.log(status)
+}, function (err) {
+    console.log(err)
+})
+
+login('bar', 'foo', function (status) {
+    console.log('login success')
+}, function (err) {
+    console.log('login failed')
+})
+.....................................................................................
+	   Higher order function - return  function from another function
+.....................................................................................
+
+Use case : Nested function:
+
+
+function makeCoffee() {
+    //nested fun
+    function start() {
+        console.log('starting')
+    }
+    //calling nested fun
+    start()
+}
+makeCoffee()
+
+Use case : calling nested function : hof
+
+// function makeCoffee() {
+//     function start() {
+//         console.log('starting')
+//     }
+//     return start
+
+// }
+// function makeCoffee() {
+//     return function start() {
+//         console.log('starting')
+//     }
+//     //return start
+
+// }
+// function makeCoffee() {
+//     return function () {
+//         console.log('starting')
+//     }
+//     //return start
+
+// }
+// // let myfun = makeCoffee()
+// // myfun()
+// makeCoffee()()
+
+function makeCoffee() {
+    return function (status) {
+        console.log(status)
+    }
+    //return start
+
+}
+// let myfun = makeCoffee()
+// myfun()
+makeCoffee()('starting')
+....................................................................................
+			Higher order functions in ES 6
+			   (Arrow Functions)
+
+Arrow functions are just replace of old(es5) anonymous function syntax.
+
+Arrow functions looks very simple ,less code
+
+
+Use case: simple arrow
+
+//es 5 style
+let hello = function () {
+    console.log('hello')
+}
+hello()
+
+//es 6 arrow style
+let hai = () => {
+    console.log('hai')
+}
+
+hai()
+
+Use case: parameters,arg,no default arg
+
+//code refactoring
+
+//if function body has only one line of code, we can remove {}
+// let hai = () => {
+//     console.log('hai')
+// }
+let hai = () => console.log('hai')
+hai()
+
+//parameters
+let add = (a = 0, b = 0) => {
+    let c = a + b
+    console.log(c)
+}
+add(10, 10)
+//return 
+// let multiple = (a = 0, b = 0) => {
+//     return a * b 
+// }
+// console.log(multiple(10,10))
+
+//function having only return, then we can remove {} and return statement
+let multiple = (a = 0, b = 0) => a * b
+console.log(multiple(10, 10))
+
+
+//if function takes single arg, no default value,return the same; we can remove {},return
+
+let getStock = value => value
+
+console.log(getStock(34))
+..................................................................................
+			 Arrow and higher order function
+.................................................................................
+
+//passing function as parameter
+
+let login = (userName, password, resolve, reject) => {
+    if (userName === 'admin' && password === 'admin') {
+        resolve('login success')
+    } else {
+        reject('login failed')
+    }
+}
+// login('admin', 'admin', (status) => {
+//     console.log(status)
+// }, (err) => {
+//     console.log(err)
+// })
+login('admin', 'admin', status => console.log(status), err => console.log(err))
+................&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&......................................
+
+
+
+
+
+
+
