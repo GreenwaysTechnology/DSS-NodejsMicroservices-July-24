@@ -730,8 +730,177 @@ async function main() {
 }
 main()
 .....................................................................................
-	
+				Modules Pattern
+...................................................................................
 
+
+In java Modularity , is presented via "Packages"
+
+Package organize the code  logically.
+
+Customer.java
+
+package com.ibm.cms
+
+public class Customer{}
+
+Java organizes code folders and files Physically.
+
+d:/javaapps/src/
+    com/ibm/cms/Customer.java
+
+What about javascript Modularity?
+
+ Javascript is file based modularity physically
+ but logically there is no such modularity at language level.
+
+collection of variable declarations and function.
+
+Once js started growing in large scale, dev struck to organize code.
+
+2000, Smart developers started thinking about how to modualrize js code.
+ 
+
+Module design patterns came.
+
+1.Namespace design pattern : 2000 : jquery
+2.AMD -Async Module Defintion : dojo
+---------------------------------------------------------
+3.CJS - Common JS =  namespace + amd:2005 on wards
+4.ES 6 Module design pattern:2012-2015  = amd + cjs
+------------------------------------------------------------
+5.System :2007 = AMD = CJS + ES 6
+6.UMD :2008 = NAMESPACE + AMD + CJS = ES 6
+....................................................................................
+
+....................................................................................
+				Commonjs-CJS
+.....................................................................................
+
+How to share code? How to import code?
+
+ Code:
+  Could be variables,functions,classes.
+  Variables can have any literal string,numbers,boolean,objects,functions...
+
+src
+  |
+  subfolders
+|
+index.js
+
+Sharing code :
+
+Keywords
+exports
+module.exports
+
+Imporing code:
+
+require('fileName')
+require('folderName/fileName')
+
+exports:
+ Used to share more code from the single file.
+ exports packs the entire code into one single js object and returns that object
+
+//pack the code 
+exports.firstName = 'Subramanian'
+exports.lastName = 'Murugan'
+exports.salary = 1000
+exports.status = true
+exports.address = {
+    city: 'Coimbatore'
+}
+exports.skills = ['Java','JavaScript','Node.js']
+
+
+require:
+  It is a function which returns what ever we exported from the file.
+
+const obj= require('fileName')
+
+
+
+src/util.myutil.js
+
+//pack the code 
+exports.firstName = 'Subramanian'
+exports.lastName = 'Murugan'
+exports.salary = 1000
+exports.status = true
+exports.address = {
+    city: 'Coimbatore'
+}
+exports.skills = ['Java', 'JavaScript', 'Node.js']
+exports.saySomething = () => "something"
+
+src/index.js
+//access the code from the myutil.js 
+const res = require('./util/myutil')
+console.log(res)
+
+console.log(`${res.firstName} ${res.lastName} ${res.address.city} ${res.salary}`)
+console.log(`${res.skills} ${res.status} ${res.saySomething()}`)
+
+....................................................................................
+				module.exports
+....................................................................................
+
+Export only one item from the file.
+
+eg"
+ if you want to share  "Class"
+ if you want to share "array"
+ if you want to share "Object"
+
+const customerService = require('./services/CustomerService')
+
+async function main() {
+    //     customerService.findAll(customers => {
+    //         console.log(customers)
+    //     })
+
+    //promise then 
+    //customerService.findAll().then(customers => console.log(customers)).catch(err => console.log(err))
+    try {
+        const customers = await customerService.findAll()
+        console.log(customers)
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+src/services/customer.service.js
+
+
+class CustomerService {
+    constructor() {
+
+    }
+    //sync api
+    // findAll() {
+    //     return [{ id: 1, name: 'a' }]
+    // }
+    //callback based
+    // findAll(callback) {
+    //     setTimeout(callback, 1000, [{ id: 1, name: 'a' }])
+    // }
+    findAll() {
+        return new Promise((resolve, reject) => {
+            setTimeout(resolve, 1000, [{ id: 1, name: 'a' }])
+        })
+    }
+}
+//share class
+//module.exports = CustomerService
+//share object
+module.exports = new CustomerService()
+.....................................................................................
+			 ES 6 Module pattern
+.....................................................................................
 
 
 
