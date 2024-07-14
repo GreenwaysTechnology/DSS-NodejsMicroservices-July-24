@@ -1432,10 +1432,345 @@ readerStream.pipe(writeStr);
 .....................................................................................
 			HTTP programming
 ....................................................................................
-npm
-express
-apis
-features
+Node was created to build non blocking web server and web applications.
+Node provides single event loop thread which handles lot of concurrent http requests.
+Node offers high level http wrapper apis to talk to os apis.
+Node offers http as object.
+
+HTTP Objects
+
+1.Agent -  http.Agent
+  For handling connections between and server
+
+2.ClientRequest - http.clientRequest
+  For creating http clients
+
+3.Server - http.Server
+  For creating web servers,we can create app and deploy on top of server.
+  
+4.ServerResponse - http.ServerResponse
+  ServerResponse is outputstream of "http socket"
+
+5.IncomingMessage -http.IncomingMessage
+    The payload which is sent by client -  Message
+
+6.OutgoingMessage -http.OutgoingMessage
+    The data which is sent by server - Message
+
+7.Global Methods of http
+  
+ 1.createServer
+    factory method to create http server instance.
+
+HTTP events:
+ 
+ There are three types of events
+
+1.HTTP Request events
+  Which are triggered whenever client request is recived by server
+
+request.on('nameoftheevent',listner)
+
+2.Http Response events
+   Which are triggered whenever server response is sent by server
+
+response.on('nameoftheevent',listner)
+
+3.Server Events
+   Server events are triggered during server startup,connection,handshake,request
+
+ server.on('nameoftheevent',listner)
+
+common events:
+data,close,end,error
+
+Note:
+ Each Object has its own events apart from common events.
+
+
+
+{
+  _connectionListener: [Function: connectionListener],
+  METHODS: [
+    'ACL',         'BIND',       'CHECKOUT',
+    'CONNECT',     'COPY',       'DELETE',
+    'GET',         'HEAD',       'LINK',
+    'LOCK',        'M-SEARCH',   'MERGE',
+    'MKACTIVITY',  'MKCALENDAR', 'MKCOL',
+    'MOVE',        'NOTIFY',     'OPTIONS',
+    'PATCH',       'POST',       'PROPFIND',
+    'PROPPATCH',   'PURGE',      'PUT',
+    'REBIND',      'REPORT',     'SEARCH',
+    'SOURCE',      'SUBSCRIBE',  'TRACE',
+    'UNBIND',      'UNLINK',     'UNLOCK',
+    'UNSUBSCRIBE'
+  ],
+  STATUS_CODES: {
+    '100': 'Continue',
+    '101': 'Switching Protocols',
+    '102': 'Processing',
+    '103': 'Early Hints',
+    '200': 'OK',
+    '201': 'Created',
+    '202': 'Accepted',
+    '203': 'Non-Authoritative Information',
+    '204': 'No Content',
+    '205': 'Reset Content',
+    '206': 'Partial Content',
+    '207': 'Multi-Status',
+    '208': 'Already Reported',
+    '226': 'IM Used',
+    '300': 'Multiple Choices',
+    '301': 'Moved Permanently',
+    '302': 'Found',
+    '303': 'See Other',
+    '304': 'Not Modified',
+    '305': 'Use Proxy',
+    '307': 'Temporary Redirect',
+    '308': 'Permanent Redirect',
+    '400': 'Bad Request',
+    '401': 'Unauthorized',
+    '402': 'Payment Required',
+    '403': 'Forbidden',
+    '404': 'Not Found',
+    '405': 'Method Not Allowed',
+    '406': 'Not Acceptable',
+    '407': 'Proxy Authentication Required',
+    '408': 'Request Timeout',
+    '409': 'Conflict',
+    '410': 'Gone',
+    '411': 'Length Required',
+    '412': 'Precondition Failed',
+    '413': 'Payload Too Large',
+    '414': 'URI Too Long',
+    '415': 'Unsupported Media Type',
+    '416': 'Range Not Satisfiable',
+    '417': 'Expectation Failed',
+    '418': "I'm a Teapot",
+    '421': 'Misdirected Request',
+    '422': 'Unprocessable Entity',
+    '423': 'Locked',
+    '424': 'Failed Dependency',
+    '425': 'Too Early',
+    '426': 'Upgrade Required',
+    '428': 'Precondition Required',
+    '429': 'Too Many Requests',
+    '431': 'Request Header Fields Too Large',
+    '451': 'Unavailable For Legal Reasons',
+    '500': 'Internal Server Error',
+    '501': 'Not Implemented',
+    '502': 'Bad Gateway',
+    '503': 'Service Unavailable',
+    '504': 'Gateway Timeout',
+    '505': 'HTTP Version Not Supported',
+    '506': 'Variant Also Negotiates',
+    '507': 'Insufficient Storage',
+    '508': 'Loop Detected',
+    '509': 'Bandwidth Limit Exceeded',
+    '510': 'Not Extended',
+    '511': 'Network Authentication Required'
+  },
+  Agent: [Function: Agent] { defaultMaxSockets: Infinity },
+  ClientRequest: [Function: ClientRequest],
+  IncomingMessage: [Function: IncomingMessage],
+  OutgoingMessage: [Function: OutgoingMessage],
+  Server: [Function: Server],
+  ServerResponse: [Function: ServerResponse],
+  createServer: [Function: createServer],
+  validateHeaderName: [Function: __node_internal_],
+  validateHeaderValue: [Function: __node_internal_],
+  get: [Function: get],
+  request: [Function: request],
+  setMaxIdleHTTPParsers: [Function: setMaxIdleHTTPParsers],
+  maxHeaderSize: [Getter],
+  globalAgent: [Getter/Setter]
+}
+
+////////////////////////////////////////////////////////////////////
+
+First Web Server: Helloworld
+const http = require('node:http')
+
+//create server
+
+const server = http.createServer((req, res) => {
+    //handle client request and send response
+    res.write('Hello')
+    res.end()
+})
+
+//start server
+server.listen(3000, () => {
+    console.log('Server is Ready')
+})
+
+Use case: only end Method:
+const http = require('node:http')
+
+//create server
+
+const server = http.createServer((req, res) => {
+    res.end('hello')
+})
+
+//start server
+server.listen(3000, () => {
+    console.log('Server is Ready')
+})
+
+How to attach events?
+
+Server events:
+  request -event.
+
+const http = require('node:http')
+
+//create server
+
+const server = http.createServer((req, res) => {
+    res.end('hello')
+})
+
+//start server
+server.listen(3000, () => {
+    console.log('Server is Ready')
+})
+
+//attac server listener
+server.on('request', (req, res) => {
+    //console.log(req)
+    console.log('Request Recived on', new Date(), "URL is", req.url, "method ", req.method)
+})
+..............................................................................
+				How to send json?
+.................................................................................
+const http = require('node:http')
+
+//create server
+
+const server = http.createServer((req, res) => {
+    const body = [{
+        message: 'Hello'
+    }, {
+        message: 'Hai'
+    }]
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+    });
+    res.end(JSON.stringify(body))
+})
+
+//start server
+server.listen(3000, () => {
+    console.log('Server is Ready')
+})
+
+//attac server listener
+server.on('request', (req, res) => {
+    //console.log(req)
+    console.log('Request Recived on', new Date(), "URL is", req.url, "method ", req.method)
+})
+.....................................................................................
+			Modularzation and Web
+.....................................................................................
+src/services/user.service.js
+
+const USERS = require("../mock-data/users")
+
+class UserService {
+
+    //apis 
+    findAll() {
+        const userJson = JSON.stringify(USERS)
+        return new Promise((resolve, reject) => {
+            setTimeout(resolve, 1000, userJson)
+        })
+    }
+
+}
+
+module.exports = new UserService()
+
+src/index.js
+const http = require('node:http')
+const { findAll } = require('./services/user.service')
+
+//create server
+
+const server = http.createServer(async (req, res) => {
+
+    try {
+        res.writeHead(200, {
+            'Content-Type': 'application/json',
+        });
+        const users = await findAll()
+        res.end(users)
+    }
+    catch (err) {
+        res.writeHead(400, {
+            'Content-Type': 'application/json',
+        });
+        res.end({ err: err })
+    }
+})
+
+//start server
+server.listen(3000, () => {
+    console.log('Server is Ready')
+})
+
+//attac server listener
+server.on('request', (req, res) => {
+    //console.log(req)
+    console.log('Request Recived on', new Date(), "URL is", req.url, "method ", req.method)
+})
+.....................................................................................
+			How to get Input
+....................................................................................
+const http = require('node:http')
+const { save } = require('./services/user.service')
+
+//create server
+
+const server = http.createServer((req, res) => {
+
+    let data = ''
+    req.on('data', (chunk) => {
+        data += chunk
+    })
+    req.on('end', async () => {
+        res.writeHead(201, {
+            'Content-Type': 'application/json',
+        });
+        //invoke
+        const result = await save(JSON.parse(data))
+        res.end(JSON.stringify({ status: result }))
+    })
+
+})
+
+//start server
+server.listen(3000, () => {
+    console.log('Server is Ready')
+})
+
+//attac server listener
+server.on('request', (req, res) => {
+    //console.log(req)
+    console.log('Request Recived on', new Date(), "URL is", req.url, "method ", req.method)
+})
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

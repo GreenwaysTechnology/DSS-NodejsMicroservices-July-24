@@ -1,23 +1,23 @@
 const http = require('node:http')
-const { save } = require('./services/user.service')
+const { findAll } = require('./services/user.service')
 
 //create server
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
 
-    let data = ''
-    req.on('data', (chunk) => {
-        data += chunk
-    })
-    req.on('end', async () => {
-        res.writeHead(201, {
+    try {
+        res.writeHead(200, {
             'Content-Type': 'application/json',
         });
-        //invoke
-        const result = await save(JSON.parse(data))
-        res.end(JSON.stringify({ status: result }))
-    })
-
+        const users = await findAll()
+        res.end(users)
+    }
+    catch (err) {
+        res.writeHead(400, {
+            'Content-Type': 'application/json',
+        });
+        res.end({ err: err })
+    }
 })
 
 //start server
