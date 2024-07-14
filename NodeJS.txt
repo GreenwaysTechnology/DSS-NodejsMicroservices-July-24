@@ -1075,6 +1075,370 @@ main()
 			   IO Modules
 ...................................................................................
 
+1.file system io
+   file system io , how to read data from disk file
+2.network io
+
+
+File System IO:
+=>We can read and write files from the disk in  two ways
+  1.blocking way
+  2.nonblocking way
+=>We can read and write files using two mode
+  1.NonStreaming mode
+  2.Streaming mode
+=>All file operations are handled by
+  "Worker Threads" from Worker Thread Pool - either it is blocking or non blocking    io.
+=>Files are handled using callback style or promise style.
+=>Files operations are handled by "fs" module
+
+How to read File using nonblocking pattern? using callbacks
+
+fs.readFile(path[, options], callback)
+
+path <string> | <Buffer> | <URL> | <integer> filename or file descriptor
+options <Object> | <string>
+ encoding <string> | <null> Default: null
+ flag <string> See support of file system flags. Default: 'r'.
+ signal <AbortSignal> allows aborting an in-progress readFile
+
+callback <Function>
+  err <Error> | <AggregateError>
+  data <string> | <Buffer>
+
+
+//const fs =require('node:fs')
+
+import { readFile } from 'node:fs'
+
+function blockMe(message) {
+    console.log(message)
+}
+function main() {
+    const filePath = './src/assets/info.txt'
+
+    const options = {
+        encoding: 'UTF-8'
+    }
+
+    blockMe('start')
+    readFile(filePath, options, (err, data) => {
+        if (err) throw err
+        console.log(data)
+    })
+    blockMe('end')
+
+}
+main()
+
+Task:
+ Conver the callback code into Promise code.
+
+
+Use Case: Builtin promise package:
+
+import { readFile } from 'node:fs/promises'
+
+async function main() {
+    const filePath = './src/assets/info.txt'
+    const options = {
+        encoding: 'UTF-8'
+    }
+    // readFile(filePath, options)
+    //     .then(data => console.log(data))
+    //     .catch(err => console.log(err))
+    try {
+        const data = await readFile(filePath, options)
+        console.log(data)
+    }
+    catch (err) {
+        console.log(err)
+    }
+
+
+}
+main()
+.....................................................................................		How to read File using blocking pattern?
+....................................................................................
+
+import { readFileSync } from 'node:fs'
+
+async function main() {
+    const filePath = './src/assets/info.txt'
+    const options = {
+        encoding: 'UTF-8'
+    }
+    console.log('start')
+    const data = readFileSync(filePath, options)
+    console.log(data)
+    console.log('end')
+}
+main()
+....................................................................................
+			
+		How to use path module? and global variables
+....................................................................................
+
+
+The path module provides utilities for working with file and directory paths.
+
+-node provides lot of global variables
+
+__dirname  : current directory name
+C:\session\ibm\2021\june\nodemicroservices\nodeapps\src
+
+__filename :current directory name + fileName
+C:\session\ibm\2021\june\nodemicroservices\nodeapps\src\index.js
+
+
+const { readFile } = require('node:fs')
+const { join } = require('node:path')
+
+// const filePath = './src//assets/info.txt'
+const filePath = join(__dirname, 'assets/info.txt')
+
+const options = {
+    encoding: 'UTF-8'
+}
+function blockMe(message) {
+    console.log(message)
+}
+//async api to read file
+blockMe('start')
+readFile(filePath, options, (err, data) => {
+    if (err) throw err
+    console.log(data)
+})
+blockMe('end')
+.....................................................................................
+			Mode of fs read and write
+.....................................................................................
+
+1.Non Streaming Mode
+
+2.Streaming  Mode
+
+1.Non Streaming Mode
+
+  only file io is supported, network io not supported
+
+ -once file is read, the entire file is loaded into node process buffer(memory), then it will be delivered to caller.
+
+-if more files are loaded into node process, node process gets crashed.
+
+-non streaming mode is not suitable for large and big files read or write operation.
+
+fs.readFile() and fs.writeFile are non streaming apis.
+
+
+2.Streaming apis:
+   supported by fs and also network apis
+
+
+-Streaming is nothing but flow of data(chunks).
+-Streaming allows move the data from one place to another place one by one.
+-Streaming apis are other wise called evented io. which is powered events.
+
+
+
+Types of Streams:
+
+1.Readable Stream : input
+2.Writeable stream : output
+3.Duplex stream : read + write
+
+Node has lot of built in stream apis
+....................................
+
+Built in readable Streams:
+
+-HTTP responses, on the client
+-HTTP requests, on the server
+-fs read streams
+-zlib streams
+-crypto streams
+-TCP sockets
+-child process stdout and stderr
+-process.stdin
+
+Writable Streams:
+
+-HTTP requests, on the client
+-HTTP responses, on the server
+-fs write streams
+-zlib streams
+-crypto streams
+-TCP sockets
+-child process stdin
+-process.stdout, process.stderr
+
+All streaming apis are powered with events
+node io streams has built in events.
+events are emitted by node.
+Our programs are listeners
+
+Common events in all io
+.........................
+
+
+1.data event:
+ which is emitted by node, for each chunk.
+
+2.close event:
+  The 'close' event is emitted when the stream and any of its underlying resources (a file descriptor, for example) have been closed.
+
+3.end event:
+ The 'end' event is emitted when there is no more data to be consumed from the stream.
+
+4.Event: 'error'
+ The 'error' event may be emitted by a Readable implementation at any time
+Typically, this may occur if the underlying stream is unable to generate data due to an underlying internal failure, or when a stream implementation attempts to push an invalid chunk of data.
+
+
+Use case : To read file using input stream
+
+import { createReadStream } from 'node:fs'
+
+const filePath = './src/assets/info.txt'
+
+const options = {
+    encoding: 'UTF-8'
+}
+
+const inputStream = createReadStream(filePath, options)
+
+//attach events : listeners
+//attach events for io 
+let data = ''
+inputStream.on('data', chunk => {
+    console.log('data event is called')
+    data += chunk
+})
+
+inputStream.on('end', () => {
+    console.log('end event is called')
+    console.log(data)
+})
+inputStream.on('close', () => {
+    console.log('close event is called')
+})
+inputStream.on('error', (err) => {
+    console.log('error event', err)
+})
+..........
+
+Writing file using Stream:
+const fs = require('fs');
+const path = require('path');
+
+const fileName = path.join(__dirname, 'assets/grains.txt');
+
+const config = {
+    encoding: 'utf8',
+    flag: 'w'
+};
+const outputStream = fs.createWriteStream(fileName, config);
+
+const grains = ['wheat', 'rice', 'oats'];
+
+grains.forEach(grain => {
+    outputStream.write(grain + " ");
+    console.log("Wrote: %s", grain);
+});
+
+outputStream.close();
+
+outputStream.on('close', function () {
+    console.log('file has been closed ')
+})
+
+
+.....................................................................................
+				Back Pressure
+....................................................................................
+
+When input stream and output stream works together.
+
+Backpressure:
+Problems when you do read and write together
+
+1. In general read operation is faster than write operation
+
+
+Back Pressure means inputstream is fast, outputstream slow, then data will be
+lost.
+
+
+How to handle back pressure?
+
+ apis  : pause,resume,drain event
+
+pause : to close the upstream, not to emit data
+resume : to open the open upstream , to emit data
+
+drain event: if drain event is called, means buffer is empty
+const fs = require('fs');
+const path = require('path');
+
+const inputfileName = path.join(__dirname, 'assets/big.file');
+const outputfileName = path.join(__dirname, 'assets/bigcopy.file');
+
+const config = {
+    encoding: 'UTF-8'
+}
+const readerStream = fs.createReadStream(inputfileName, config);
+const writeStr = fs.createWriteStream(outputfileName, config);
+
+
+readerStream.on('data', function (chunk) {
+    console.log(`Received ${chunk.length} bytes of data.`);
+    let buffer_good = writeStr.write(chunk);
+    if (!buffer_good) readerStream.pause();
+});
+
+writeStr.on('drain', function () {
+    console.log('buffer drained!');
+    readerStream.resume();
+});
+readerStream.on('end', function () {
+    //console.log(data);
+});
+
+readerStream.on('error', function (err) {
+    console.log(err.stack);
+});		
+
+....................................................................................
+			 Using Pipe
+...................................................................................
+const fs = require('fs');
+const path = require('path');
+
+const inputfileName = path.join(__dirname, 'assets/big.file');
+//write
+const outputFileName = path.join(__dirname, 'assets/bigcopy.file');
+
+const config = {
+      encoding: 'UTF-8'
+}
+
+//Back pressure handling
+const readerStream = fs.createReadStream(inputfileName, config);
+const writeStr = fs.createWriteStream(outputFileName, config);
+
+//backPressure streams
+//pipe method is simplest method which wraps resume,pasuse,drain 
+readerStream.pipe(writeStr);
+.....................................................................................
+			HTTP programming
+....................................................................................
+npm
+express
+apis
+features
+
+
+
 
 
 

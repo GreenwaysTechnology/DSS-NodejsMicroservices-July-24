@@ -1,23 +1,18 @@
-const EventEmitter = require('node:events')
+const fs = require('fs');
+const path = require('path');
 
-class Sales extends EventEmitter {
-    constructor() {
-        super()
-        //register listener
-        this.on('sold', (evt) => {
-            console.log('Got Event')
-            console.log(evt)
-        })
-    }
+const inputfileName = path.join(__dirname, 'assets/big.file');
+//write
+const outputFileName = path.join(__dirname, 'assets/bigcopy.file');
 
-    sale(product) {
-        //emitter
-        this.emit('sold', product)
-    }
+const config = {
+      encoding: 'UTF-8'
 }
 
-function main() {
-    let sales = new Sales()
-    sales.sale({ id: 1, name: 'product', qty: 100, price: 100 })
-}
-main()
+//Back pressure handling
+const readerStream = fs.createReadStream(inputfileName, config);
+const writeStr = fs.createWriteStream(outputFileName, config);
+
+//backPressure streams
+//pipe method is simplest method which wraps resume,pasuse,drain 
+readerStream.pipe(writeStr);
