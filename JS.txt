@@ -375,13 +375,6 @@ console.log(`b value is ${b}`)
 //you cant reinitalize
 b=900
 .....................................................................................
-			    functions
-
-functions are building block of javascript language.
-functions encapsulate the logic of application.
-functions may take args and return values
-
-.....................................................................................
 			   Functions
 ....................................................................................
 functions are building block of javascript language.

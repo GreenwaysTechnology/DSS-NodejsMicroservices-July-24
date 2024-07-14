@@ -268,13 +268,13 @@ function main() {
 }
 main()
 ...................................................................................
-				Callback Chaining /Callback composition
+			Callback Chaining /Callback composition
 ..................................................................................
 
 Sequentional Programming:
 .........................
 
-result = api call
+result = apicall
 result2  apicall(result)
 
 The out put of one api call will be input to another api call -  chaining.
@@ -902,8 +902,178 @@ module.exports = new CustomerService()
 			 ES 6 Module pattern
 .....................................................................................
 
+ES 6 module pattern = CJS
+
+To share code
+
+export   = exports (cjs)
+export default = module.exports (cjs)
+
+To link code
+
+import - require('') (cjs)
+
+Commonjs and es6 module cant be mixed in single project.
+
+src/lib/utility.js
+
+export const firstName = 'Subramanian'
+
+src/index.js
+import { firstName } from "./lib/utility";
+
+console.log(firstName)
+
+G:\DSS\es6Modules>node src/index.js
+(node:6824) Warning: To load an ES module, set "type": "module" in the package.json or use the .mjs extension.
+(Use `node --trace-warnings ...` to show where the warning was created)
+G:\DSS\es6Modules\src\index.js:1
+import { firstName } from "./lib/utility";
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at internalCompileFunction (node:internal/vm:77:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1288:20)
+    at Module._compile (node:internal/modules/cjs/loader:1340:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1435:10)
+    at Module.load (node:internal/modules/cjs/loader:1207:32)
+    at Module._load (node:internal/modules/cjs/loader:1023:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:135:12)
+    at node:internal/main/run_main_module:28:49
+
+Node.js v20.11.1
 
 
+Why this error?
+  Node.js does not support es 6 module directly.
+
+Solution:(how to run es6 modules in node)
+
+1.you have to convert es6 code into cjs code using build tools
+2.latest node supports es6 with configuration.
+   2.1.inside package.json file
+      "type": "module"
+   
+  npm init --yes
+ 
+   2.2. file can be saved "fileName.mjs" extension
+  "type": "module"
+
+final code
+src/index.js
+import { firstName } from "./lib/utility.js";
+
+console.log(firstName)
+...................................................................................
+
+src/lib/greet.mjs
+export default function sayGreet(message) {
+    return message
+}
+
+.....................................................................................
+			Types of modules
+.....................................................................................
+
+1.Custom module
+  built by us
+2.built in modules
+   provided by node.js  
+3.provided by third party/community
+  libs,frameworks
+
+
+OperatingSystem:
+//os
+const os = require('node:os')
+console.log(os.arch())
+console.log(os.cpus())
+
+./ vs ''
+.........
+
+ require('./services/TODOService');
+  ->here you can see ./
+  ./ -current dir
+
+ require('node:os'); => 
+  -here no ./ 
+
+Why?
+
+Note : if you are java devp, you know the classpath , how it works?
+
+
+require('node:os');
+
+Node internally uses a search algorthim,node always looks the folder called
+ "node_modules" in the current project, if not , then it searches, the node in built 
+installtion folder---c:/pf/node/node_modules--if it finds it will pick up from there else it will throw error.
+
+require('./services/TODOService');
+   it will lookup in the current dir or sub dirs only.
+
+nternal/modules/cjs/loader.js:800
+    throw err;
+    ^
+
+Error: Cannot find module 'osxx'
+Require stack:
+- C:\session\ibm\feb\nodems\mynodeapps\src\index.js
+[90m    at Function.Module._resolveFilename (internal/modules/cjs/loader.js:797:15)[39m
+[90m    at Function.Module._load (internal/modules/cjs/loader.js:690:27)[39m
+[90m    at Module.require (internal/modules/cjs/loader.js:852:19)[39m
+[90m    at require (internal/modules/cjs/helpers.js:74:18)[39m
+    at Object.<anonymous> (C:\session\ibm\feb\nodems\mynodeapps\src\index.js:1:32)
+[90m    at Module._compile (internal/modules/cjs/loader.js:959:30)[39m
+[90m    at Object.Module._extensions..js (internal/modules/cjs/loader.js:995:10)[39m
+[90m    at Module.load (internal/modules/cjs/loader.js:815:32)[39m
+[90m    at Function.Module._load (internal/modules/cjs/loader.js:727:14)[39m
+[90m    at Function.Module.runMain (internal/modules/cjs/loader.js:1047:10)[39m {
+  code: [32m'MODULE_NOT_FOUND'[39m,
+  requireStack: [ [32m'C:\\session\\ibm\\feb\\nodems\\mynodeapps\\src\\index.js'[39m ]
+}
+.....................................................................................
+				  Events
+
+Node.js is event driven arch, some program emits events called emitter and some program lisents for those events called "listeners".
+
+Using events module we can build event programming model.
+
+As of now , we are going to discuss simple events with in objects, later in microservices we will see the distributed event driven arch.
+
+Much of the Node.js core API is built around an idiomatic asynchronous event-driven architecture in which certain kinds of objects (called "emitters") emit named events that cause Function objects ("listeners") to be called.
+
+For instance: a net.Server object emits an event each time a peer connects to it; a fs.ReadStream emits an event when the file is opened; a stream emits an event whenever data is available to be read.			
+
+
+
+const EventEmitter = require('node:events')
+
+class Sales extends EventEmitter {
+    constructor() {
+        super()
+        //register listener
+        this.on('sold', (evt) => {
+            console.log('Got Event')
+            console.log(evt)
+        })
+    }
+
+    sale(product) {
+        //emitter
+        this.emit('sold', product)
+    }
+}
+
+function main() {
+    let sales = new Sales()
+    sales.sale({ id: 1, name: 'product', qty: 100, price: 100 })
+}
+main()
+...................................................................................
+			   IO Modules
+...................................................................................
 
 
 
