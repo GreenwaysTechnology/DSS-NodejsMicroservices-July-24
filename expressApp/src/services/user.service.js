@@ -9,6 +9,14 @@ class UserService {
         })
     }
 
+   async findById(id) {
+        return USERS.find(user => user.id === id)
+    }
+    async save(user) {
+        // Todo: save operation
+        return user
+    }
+
 }
 
 module.exports = new UserService()
