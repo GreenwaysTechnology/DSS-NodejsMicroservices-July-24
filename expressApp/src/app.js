@@ -1,21 +1,22 @@
-require('dotenv').config()
 const express = require('express')
-const app = express()
+const app = express();
 
-const PORT = process.env.PORT || 3000
-
-//bind Router with Application Object
-// app.use('/api/users',UserRouter)
-app.use('/api/users', require('./routers/users/user.router'))
-
-
-app.get('/', (req, res) => {
-    res.end('Home Page')
+app.use((err, req, res, next) => {
+    //  next()
+    res.status(500);
+    res.send('Internal Server Error');
 })
 
+//api test error 
+app.get('/api/greet/:message', (req, res) => {
+    const message = req.params.message
+    if (message === 'hello') {
+        res.send(message)
+    } else {
+        throw new Error('Broken...')
+    }
+})
 
-//start server
-const server = app.listen(PORT, () => {
-    console.log(server.address())
-    console.log(`Express is running @ ${server.address().port}`)
+app.listen(3000, () => {
+    console.log('Express server is running')
 })

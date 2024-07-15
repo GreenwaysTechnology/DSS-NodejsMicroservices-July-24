@@ -4,6 +4,15 @@ const { findAll, findById, save } = require('../../services/user.service')
 //create Router
 const UserRouter = express.Router()
 
+//UserRouter middleware
+UserRouter.use((req, res, next) => {
+    console.log("User Router Globale Middleware")
+    next()
+})
+UserRouter.post('/', (req, res, next) => {
+    console.log("User Router Post Middleware")
+    next()
+})
 //api
 UserRouter.get('/', async (req, res) => {
     try {
