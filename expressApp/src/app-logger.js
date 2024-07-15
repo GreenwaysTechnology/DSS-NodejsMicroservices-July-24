@@ -5,24 +5,20 @@ const bodyParser = require('body-parser')
 const fs = require('fs')
 const morgan = require('morgan')
 const path = require('path')
-const cors = require('cors')
 
-const corsOptions = {
-    origin: 'http://www.abce.com'
-}
 
 const PORT = process.env.PORT || 3000
 
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 
-//enabled default cors
-app.use(cors(corsOptions))
-
-// app.use(cors())
-
+//register bodyparserMiddleware
 app.use(bodyParser.json())
+// app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 app.use(morgan('combined', { stream: accessLogStream }))
 
+// app.use(express.json())
+
+// parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use('/api/users', require('./routers/users/user.router'))
@@ -32,15 +28,6 @@ app.get('/', (req, res) => {
     res.end('Home Page')
 })
 
-
-//cors api
-// app.get('/api/customers/:id',(req, res, next) => {
-//     res.json({ msg: 'cors enabled for only this particular' })
-// })
-
-app.get('/api/customers/:id', (req, res, next) => {
-    res.json({ msg: 'cors enabled for only this particular' })
-})
 
 //start server
 const server = app.listen(PORT, () => {

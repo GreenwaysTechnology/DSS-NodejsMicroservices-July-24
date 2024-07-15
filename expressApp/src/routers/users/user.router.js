@@ -39,32 +39,28 @@ UserRouter.get('/:id', async (req, res) => {
 })
 
 //here code receives input as plain string, not json standard string
-UserRouter.post('/', async (req, res) => {
-    try {
-        let data = ''
-        req.on('data', (chunk) => {
-            data += chunk
-        })
-        req.on('end', async () => {
-            const user = await save(data);
-            res.json(user)
-        })
-    }
-    catch (err) {
-        res.json({ err: err })
-    }
-})
+// UserRouter.post('/', async (req, res) => {
+//     try {
+//         let data = ''
+//         req.on('data', (chunk) => {
+//             data += chunk
+//         })
+//         req.on('end', async () => {
+//             const user = await save(data);
+//             res.json(user)
+//         })
+//     }
+//     catch (err) {
+//         res.json({ err: err })
+//     }
+// })
 
 UserRouter.post('/', async (req, res) => {
     try {
-        let data = ''
-        req.on('data', (chunk) => {
-            data += chunk
-        })
-        req.on('end', async () => {
-            const user = await save(data);
-            res.json(user)
-        })
+        const user = req.body
+        console.log(user)
+        const response = await save(user);
+        res.json(response)
     }
     catch (err) {
         res.json({ err: err })
