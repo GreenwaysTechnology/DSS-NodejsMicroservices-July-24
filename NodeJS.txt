@@ -3869,12 +3869,406 @@ userRouter.delete('/:id', async (req, res) => {
 
 module.exports = userRouter
 ....................................................................................
+			 Express,Prisma,Mongo
+..................................................................................
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  body  String
+}
+
+// const express = require('express')
+import express from 'express';
+import { PrismaClient } from '@prisma/client'
+
+const app = express()
+app.use(express.json())
+
+const prisma = new PrismaClient()
 
 
 
+app.get('/api/posts', async (req, res) => {
+    try {
+        const posts = await prisma.Post.findMany()
+        res.json(posts)
+    }
+    catch (err) {
+        console.log(err)
+        res.json({ err })
+    }
+})
+
+app.post('/api/posts', async (req, res) => {
+    const input = req.body
+    try {
+        const post = await prisma.post.create({
+            data: {
+                title: input.title,
+                body: input.body
+            }
+        })
+        res.json(post)
+    }
+    catch (err) {
+        console.log(err)
+        res.json({ err })
+    }
+})
+app.listen(3000, () => {
+    console.log('Express server is running')
+})
+
+Note:
+ 
+ Prisma CURD operations are portable across sql and mongo db
+....................................................................................
+			 Express,Auth,Authroization
+.....................................................................................
+
+Authentication:
+ 
+ Registration
+               User details ------------------>DB
+       					        username,password
+							  |
+							  encription
 
 
+ login
+    user,password---------------------------->verify against db
+					      jwt token generation
+					      send token to client
+   
+   client uses token along with userid,password--continue
 
+
+Project :
+G:\DSS\expressAuthApp>npm init --yes
+Wrote to G:\DSS\expressAuthApp\package.json:
+
+{
+  "name": "expressauthapp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
+
+npm i bcrypt
+npm i express
+npm i mongoose
+npm i jsonwebtoken
+npm i cors
+
+{
+  "name": "expressauthapp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
+
+Step 1:
+ Signup -Registration
+
+const express = require('express')
+const cors = require('cors')
+const bcrypt = require('bcrypt')
+const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+
+const DATABASE_URL = "mongodb+srv://subugee:subugee222@cluster0.shfpbhv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority&appName=Cluster0"
+
+const app = express()
+app.use(cors())
+app.use(bodyParser.json())
+
+async function connect() {
+    try {
+        await mongoose.connect(DATABASE_URL)
+        console.log('database is connected')
+        app.listen(3000, () => {
+            console.log('Express is ready')
+        })
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+connect()
+
+//User model
+const schema = mongoose.Schema({ username: String, password: String })
+const User = mongoose.model("User", schema)
+
+//signup -user registration
+
+app.post('/signup', async (req, res) => {
+    const { username, password } = req.body
+
+    try {
+        //hash the password
+        const hashPassword = await bcrypt.hash(password, 10)
+        //store the user into db
+        const user = new User({ username, password: hashPassword })
+        await user.save()
+        res.status(201).send("User Registred")
+    }
+    catch {
+        res.status(500).send("User Registration failed")
+    }
+})
+
+Testing:
+localhost:3000/signup
+
+Response:
+User Registred
+
+Verify in the db.
+....................................................................................
+
+login:
+const express = require('express')
+const cors = require('cors')
+const bcrypt = require('bcrypt')
+const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
+
+const DATABASE_URL = "mongodb+srv://subugee:subugee222@cluster0.shfpbhv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority&appName=Cluster0"
+
+const app = express()
+app.use(cors())
+app.use(bodyParser.json())
+
+async function connect() {
+    try {
+        await mongoose.connect(DATABASE_URL)
+        console.log('database is connected')
+        app.listen(3000, () => {
+            console.log('Express is ready')
+        })
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+connect()
+
+//User model
+const schema = mongoose.Schema({ username: String, password: String })
+const User = mongoose.model("User", schema)
+
+//signup -user registration
+
+app.post('/signup', async (req, res) => {
+    const { username, password } = req.body
+
+    try {
+        //hash the password
+        const hashPassword = await bcrypt.hash(password, 10)
+        //store the user into db
+        const user = new User({ username, password: hashPassword })
+        await user.save()
+        res.status(201).send("User Registred")
+    }
+    catch {
+        res.status(500).send("User Registration failed")
+    }
+})
+
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body
+    //verify the given user name is available in the db
+    const user = await User.findOne({ username: username })
+    if (!user) {
+        return res.status(400).send("User not found")
+    }
+    //Compare the stored password against 
+    const vaildPassoword = await bcrypt.compare(password, user.password)
+
+    if (!vaildPassoword) return res.status(400).send("password invalid")
+
+    //Generate JWT token for user interaction: auth
+    const SECRET_KEY = "a23nE"
+    //if valid user 
+    const token = jwt.sign({ username: user.name }, SECRET_KEY)
+    res.status(200).send(token)
+})
+
+Generate Token:
+
+POST localhost:3000/login
+
+{
+    "username": "subu",
+    "password": "subu123"
+}
+
+Response:
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MjEyMjIzNDF9.oelWTpdZquhJC8FxsFvBWIBwCO2r--GSn2Yu-Z8NZZs
+
+Apply authroization :
+
+We need to write middleware.
+const express = require('express')
+const cors = require('cors')
+const bcrypt = require('bcrypt')
+const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
+
+const DATABASE_URL = "mongodb+srv://subugee:subugee222@cluster0.shfpbhv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority&appName=Cluster0"
+
+const app = express()
+app.use(cors())
+app.use(bodyParser.json())
+
+async function connect() {
+    try {
+        await mongoose.connect(DATABASE_URL)
+        console.log('database is connected')
+        app.listen(3000, () => {
+            console.log('Express is ready')
+        })
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+connect()
+
+//User model
+const schema = mongoose.Schema({ username: String, password: String })
+const User = mongoose.model("User", schema)
+
+const SECRET_KEY = "a23nE"
+
+//middleware for authorization
+const verifyToken = async (req, res, next) => {
+    const token = req.headers.authorization
+    if (!token) return res.status(401).send("Request Denied")
+    try {
+        const verified = await jwt.verify(token, SECRET_KEY)
+        req.user = verified
+        console.log(req.user)
+        next()
+    }
+    catch {
+        res.status(401).send("Invaild Token")
+    }
+
+}
+
+//signup -user registration
+
+app.post('/signup', async (req, res) => {
+    const { username, password } = req.body
+
+    try {
+        //hash the password
+        const hashPassword = await bcrypt.hash(password, 10)
+        //store the user into db
+        const user = new User({ username, password: hashPassword })
+        await user.save()
+        res.status(201).send("User Registred")
+    }
+    catch {
+        res.status(500).send("User Registration failed")
+    }
+})
+
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body
+    //verify the given user name is available in the db
+    const user = await User.findOne({ username: username })
+    if (!user) {
+        return res.status(400).send("User not found")
+    }
+    //Compare the stored password against 
+    const vaildPassoword = await bcrypt.compare(password, user.password)
+
+    if (!vaildPassoword) return res.status(400).send("password invalid")
+
+    //Generate JWT token for user interaction: auth
+    //if valid user 
+    const token = jwt.sign({ username: user.username }, SECRET_KEY)
+    res.status(200).send(token)
+})
+
+app.get("/profile", verifyToken, (req, res) => {
+    res.send(`Welcome to ${req.user.username}`)
+})
+
+Testing:
+
+1.Create user
+
+POST localhost:3000/signup
+{
+    "username": "test",
+    "password": "test"
+}
+2.login and generate jwt token
+
+POST localhost:3000/login
+
+{
+    "username": "test",
+    "password": "test"
+}
+
+RES
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpYXQiOjE3MjEyMjM5NDF9.fV7ZgfZFauAjG9G8O-dX_DuzTxea9aDOWfqhc7_lfBk
+
+3.verify the authorization on endpoint
+
+GET localhost:3000/profile
+
+Header:
+ Authroization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpYXQiOjE3MjEyMjM5NDF9.fV7ZgfZFauAjG9G8O-dX_DuzTxea9aDOWfqhc7_lfBk
+
+Res:
+Welcome to test
 
 
 
