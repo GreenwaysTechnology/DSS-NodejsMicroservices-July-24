@@ -1114,11 +1114,322 @@ async function main() {
     }
 }
 main()
+.....................................................................................
+			Service versions
+.....................................................................................
+
+How to version  services?
+
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker()
+
+broker.createService({
+    name: 'math',
+    version: 1,
+    actions: {
+        add: {
+            //validation rules
+            params: {
+                x: "number",
+                y: { type: "number", positive: true, integer: true }
+
+            },
+            handler(ctx) {
+                return ctx.params.x + ctx.params.y
+            }
+        }
+    }
+})
+
+broker.createService({
+    name: 'math',
+    version: 2,
+    actions: {
+        add: {
+            //validation rules
+            params: {
+                x: "number",
+                y: { type: "number", positive: true, integer: true }
+
+            },
+            handler(ctx) {
+                return ctx.params.x + ctx.params.y
+            }
+        },
+        multiply: {
+            //validation rules
+            params: {
+                x: "number",
+                y: { type: "number", positive: true, integer: true }
+
+            },
+            handler(ctx) {
+                return ctx.params.x * ctx.params.y
+            }
+        }
+    }
+})
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+How to invoke versioned services?
+ call v1.math.add --x 10 --y 20
+ call v2.math.multiply --x 10 --y 20
+
+...................................................................................
+			  Microservices Communications
+.....................................................................................	
+Pattern: Remote Procedure Invocation (RPI)
+			
+
+1.RPI
+  -TCP
+  -REST,Graphql
+  -Grpc
+  -Thirft
+2.Messaging 
+  -RabbitMQ
+  -Kafka
+
+RPI
+ Rest to Rest Communication
+ Rest to TCP/non Rest communication.
+
+Molculer supports all types of communications
+
+1.NonRest to NonRest Communication - BackEndService to BackEndService
+
+Moleculer is microservice, generally microservices may be distributed across multiple machines(nodes) , which communicates via networks.
+.......................
+Types of services
+
+1.Service communication with in single broker - local services
+
+2.Service communication across multiple service brokers -remote services
 
 
 
+Local services:
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker()
+
+broker.createService({
+    name: 'math',
+    version: 1,
+    actions: {
+        add: {
+            //validation rules
+            params: {
+                x: "number",
+                y: { type: "number", positive: true, integer: true }
+
+            },
+            handler(ctx) {
+                return ctx.call('adder.add', { x: ctx.params.x, y: ctx.params.y })
+            }
+        }
+    }
+})
+
+broker.createService({
+    name: 'adder',
+    actions: {
+        add: {
+            //validation rules
+            params: {
+                x: "number",
+                y: { type: "number", positive: true, integer: true }
+
+            },
+            handler(ctx) {
+                return ctx.params.x + ctx.params.y
+            }
+        }
+    }
+})
 
 
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+.....................................................................................
+			How to call services across nodes
+
+Remote Services:
+................
+Actors:
+
+ 1.Caller service, who is calling /consuming other services
+
+ 2.Callee service, who is called by others
+
+....................................................................................
+
+Use case: RPC TO RPC , within single Broker(Single Node)
+........................................................
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker()
+
+
+//service 1
+broker.createService({
+    name: 'math',
+    actions: {
+        add(ctx) {
+            return ctx.params.a + ctx.params.b
+        }
+    }
+})
+
+//service 2
+broker.createService({
+    name: 'calculator',
+    actions: {
+        add(ctx) {
+            //need to call math
+            const { a, b } = ctx.params
+            return ctx.call('math.add', { a, b })
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        //start the broker 
+        await broker.start()
+        //use repl prompt
+        broker.repl()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+main()
+....................................................................................
+Multi Node
+
+
+Project setup:
+
+we have to create two app.
+
+G:\IBM\2024\May\Nodejs\microservices\communication\multinode>mkdir math
+
+G:\IBM\2024\May\Nodejs\microservices\communication\multinode>mkdir calculator
+
+G:\IBM\2024\May\Nodejs\microservices\communication\multinode>cd math
+
+G:\IBM\2024\May\Nodejs\microservices\communication\multinode\math>npm init --yes
+W
+G:\IBM\2024\May\Nodejs\microservices\communication\multinode\math>npm install moleculer --save
+
+G:\IBM\2024\May\Nodejs\microservices\communication\multinode\math>npm install moleculer-repl --save-dev
+
+Repeat the same step for calculator.
+
+services/calculator.service.js
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker()
+
+broker.createService({
+    name: 'calculator',
+    actions: {
+        add(ctx) {
+            //need to call math
+            const { a, b } = ctx.params
+            return ctx.call('math.add', { a, b })
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        //start the broker 
+        await broker.start()
+        //use repl prompt
+        broker.repl()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+services/math.service.js
+
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker()
+
+
+//service 1
+broker.createService({
+    name: 'math',
+    actions: {
+        add(ctx) {
+            return ctx.params.a + ctx.params.b
+        }
+    }
+})
+
+
+
+async function main() {
+    try {
+        //start the broker 
+        await broker.start()
+        //use repl prompt
+        broker.repl()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+After running:
+
+ call calculator.add --a 10 --b 20
+
+>> ERROR:
+ServiceNotFoundError: Service 'math.add' is not found.
+    at ServiceBroker.findNextActionEndpoint (G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\node_modules\moleculer\src\service-broker.js:1164:13)
+    at ServiceBroker.call (G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\node_modules\moleculer\src\service-broker.js:1213:26)
+    at Context.call (G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\node_modules\moleculer\src\context.js:286:23)
+    at Service.add (G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\services\calculator.service.js:11:24)
+    at G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\node_modules\moleculer\src\utils.js:212:22
+    at ServiceBroker.timeoutMiddleware (G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\node_modules\moleculer\src\middlewares\timeout.js:31:14)
+    at ServiceBroker.fallbackMiddleware (G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\node_modules\moleculer\src\middlewares\fallback.js:31:11)
+    at ServiceBroker.errorHandlerMiddleware (G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\node_modules\moleculer\src\middlewares\error-handler.js:14:10)
+    at ServiceBroker.call (G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\node_modules\moleculer\src\service-broker.js:1237:31)
+    at handler (G:\IBM\2024\May\Nodejs\microservices\communication\multinode\calculator\node_modules\moleculer-repl\src\commands\call.js:162:28)
+
+Why this error?
+
+=>moleculer by default looks the services within the same broker, if it is not available
+within the current broker it will try to connect other brokers.
 
 
 
