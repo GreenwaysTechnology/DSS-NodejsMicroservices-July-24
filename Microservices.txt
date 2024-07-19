@@ -1036,23 +1036,88 @@ async function main() {
 }
 main()
 
-Error Response:
-..............
-
-code: 422,
-  type: 'VALIDATION_ERROR',
-  data: [
-    {
-      type: 'number',
-      message: "The 'a' field must be a number.",
-      field: 'a',
-      actual: 'abc',
-      nodeID: 'desktop-kaufcr7-15032',
-      action: 'math.add'
-    }
-  ],
-  retryable
 .....................................................................................
+			  dynamic parameters
+
+
+
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker()
+
+broker.createService({
+    name: 'math',
+    actions: {
+        add(ctx) {
+            return ctx.params.a + ctx.params.b
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+.....................................................................................
+			Service actions
+.....................................................................................
+
+
+Syntax:
+ actions: {
+        add(ctx) {
+            return ctx.params.a + ctx.params.b
+        }
+ }
+
+Param validation:
+
+fastest-validator is lib which is part of moleculer to validate method parameters.
+
+
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker()
+
+broker.createService({
+    name: 'math',
+    actions: {
+        add: {
+            //validation rules
+            params: {
+                x: "number",
+                y: { type: "number", positive: true, integer: true }
+
+            },
+            handler(ctx) {
+                return ctx.params.x + ctx.params.y
+            }
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+
+
+
 
 
 

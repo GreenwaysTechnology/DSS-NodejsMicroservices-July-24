@@ -11,5 +11,8 @@
   "description": "",
   "dependencies": {
     "moleculer": "^0.14.33"
+  },
+  "devDependencies": {
+    "moleculer-repl": "^0.7.4"
   }
 }
