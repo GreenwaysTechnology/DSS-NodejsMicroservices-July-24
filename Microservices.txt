@@ -2386,3 +2386,310 @@ async function main() {
     }
 }
 main()
+....................................................................................
+			    Logging
+...................................................................................
+
+Built in Logger: Console
+
+const { ServiceBroker } = require('moleculer')
+
+//create broker object
+const broker = new ServiceBroker({
+    logger: [
+        {
+            type: "Console",
+            options: {
+                level: "info",
+            }
+        },
+        {
+            type: "File",
+            options: {
+                level: "info",
+                folder: "/logs/moleculer",
+                filename: "all-{date}.log",
+                formatter: "{timestamp} {level} {nodeID}/{mod}: {msg}"
+            }
+        }]
+})
+
+//create service
+broker.createService({
+    name: 'hello',
+    //biz logic 
+    actions: {
+        //methods
+        sayHello() {
+            //log
+            //console.log("say Hello is called")
+            this.logger.info("Say Hello is called")
+            return "Hello"
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        await broker.start()
+        console.log('Broker is ready')
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+....................................................................................
+			 Caching
+...................................................................................
+
+if api is called for data which calls internally database or external end points.
+
+if api returns the same data again and again, why should i execute queries or calling third party api
+
+Caching provides high level performance.
+
+Without Caching:
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    logger: "Console"
+})
+
+broker.createService({
+    name: 'user',
+    actions: {
+        list: {
+            handler(ctx) {
+                this.logger.info('handler is called')
+                return [{
+                    id: 1, name: 'Subramanian'
+                },
+                {
+                    id: 2, name: 'Murugan'
+                }]
+            }
+        }
+    }
+})
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+output
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:14:47.170Z] INFO  desktop-kaufcr7-9376/USER: handler is called
+>> Execution time:3ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:14:56.589Z] INFO  desktop-kaufcr7-9376/USER: handler is called
+>> Execution time:1ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:14:59.203Z] INFO  desktop-kaufcr7-9376/USER: handler is called
+>> Execution time:5ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:15:00.348Z] INFO  desktop-kaufcr7-9376/USER: handler is called
+>> Execution time:5ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+
+now you can notice, this method is called more number of times 
+
+Types of caching:
+..................
+
+1.InMemory Caching
+   once the app is restarted , then all cache data will be lost but stores all cached
+data in "RAM".
+
+const broker = new ServiceBroker({
+    cacher: "Memory"
+});
+const broker = new ServiceBroker({
+    cacher: true
+});
+
+2.Third party logging service
+
+Redis cache:
+ It is most popular caching solution in the distributed apps.
+
+
+
+Eg:
+ Memory Cacher:
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    logger: "Console",
+    cacher: "Memory"
+})
+
+broker.createService({
+    name: 'user',
+    actions: {
+        list: {
+            //list method now is cached
+            cache: true,
+            handler(ctx) {
+                this.logger.info('handler is called')
+                return [{
+                    id: 1, name: 'Subramanian'
+                },
+                {
+                    id: 2, name: 'Murugan'
+                }]
+            }
+        }
+    }
+})
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+Testing:
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:23:52.911Z] INFO  desktop-kaufcr7-22860/USER: handler is called
+>> Execution time:8ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+>> Execution time:3ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+>> Execution time:2ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+>> Execution time:3ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+>> Execution time:2ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+>> Execution time:2ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+
+
+Redis Cache:
+
+1.you have to start redis server.
+
+docker run --name some-redis -p 6379:6379  redis
+
+2.redis configuration
+const broker = new ServiceBroker({
+    logger: "Console",
+    cacher: "redis://localhost:6379"
+})
+
+3.install redis driver.
+ npm install ioredis
+
+Code:
+const { ServiceBroker } = require('moleculer')
+
+// const broker = new ServiceBroker({
+//     logger: "Console",
+//     cacher: "Memory"
+// })
+
+const broker = new ServiceBroker({
+    logger: "Console",
+    cacher: "redis://localhost:6379"
+})
+
+
+broker.createService({
+    name: 'user',
+    actions: {
+        list: {
+            //list method now is cached
+            cache: true,
+            handler(ctx) {
+                this.logger.info('handler is called')
+                return [{
+                    id: 1, name: 'Subramanian'
+                },
+                {
+                    id: 2, name: 'Murugan'
+                }]
+            }
+        }
+    }
+})
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+Testing:
+
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+[2024-07-20T06:34:25.583Z] INFO  desktop-kaufcr7-12256/USER: handler is called
+>> Execution time:7ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $ call user.list
+>> Call 'user.list' with params: {} with meta: { '$repl': true }
+>> Execution time:4ms
+>> Response:
+[ { id: 1, name: 'Subramanian' }, { id: 2, name: 'Murugan' } ]
+mol $
+
+Verify against Redis Server
+
+redis-cli
+127.0.0.1:6379> keys *
+1) "MOL-user.list:"
+127.0.0.1:6379> GET MOL-user.list: 
+"[{\"id\":1,\"name\":\"Subramanian\"},{\"id\":2,\"name\":\"Murugan\"}]"
+127.0.0.1:6379> 
+.....................................................................................
+
+
+

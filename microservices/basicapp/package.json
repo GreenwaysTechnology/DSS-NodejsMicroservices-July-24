@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "ioredis": "^5.4.1",
     "moleculer": "^0.14.33"
   },
   "devDependencies": {
