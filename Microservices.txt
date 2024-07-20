@@ -3508,3 +3508,425 @@ npm install moleculer-db moleculer-db-adapter-mongoose mongoose@6.5.4 --save
   }
 }
 
+const { ServiceBroker } = require("moleculer");
+const DbService = require("moleculer-db");
+const MongooseAdapter = require("moleculer-db-adapter-mongoose");
+const mongoose = require("mongoose");
+const ApiGateWayService = require('moleculer-web')
+
+const broker = new ServiceBroker();
+
+const DATABASE_URL = "mongodb+srv://subugee:subugee222@cluster0.shfpbhv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority&appName=Cluster0"
+
+// Create a Mongoose service for `post` entities
+broker.createService({
+    name: "postsdb",
+    mixins: [DbService],
+
+    adapter: new MongooseAdapter(DATABASE_URL),
+    model: mongoose.model("Post", mongoose.Schema({
+        title: { type: String },
+        content: { type: String },
+        votes: { type: Number, default: 0 }
+    }))
+});
+
+broker.createService({
+    name: 'posts',
+    actions: {
+        //GET ALL products
+        list: {
+            rest: "GET /",
+            async handler(ctx) {
+                //return ctx.
+                const posts = await ctx.call('postsdb.find')
+                return posts
+            }
+        },
+
+        //save
+        create: {
+            rest: "POST /",
+            async handler(ctx) {
+                const { title, content, votes } = ctx.params
+                const res = await ctx.call("postsdb.create", {
+                    title: title,
+                    content: content,
+                    votes: votes
+                })
+                console.log(res)
+                return 'post Created'
+            }
+        },
+        //start adding other options
+
+    }
+})
+
+
+broker.createService({
+    name: 'APIGateWay',
+    mixins: [ApiGateWayService],
+    settings: {
+        routes: [{
+            path: '/api',
+            aliases: {
+                "REST posts": "posts"
+            }
+        }]
+    }
+})
+
+
+async function init() {
+    try {
+        await broker.start();
+        broker.repl()
+    }
+    catch (e) {
+        log(e);
+    }
+}
+init();
+
+....................................................................................
+			Microservice Design patterns 
+....................................................................................
+
+1.Service Discovery and Registry
+2.Load Balancer
+3.Relability Pattern
+
+
+1.Service Registry
+
+ It is mini /small database , key-value pair database, in memory database.
+ Which has all service,actions,event listeners, nodes information.
+
+Points:
+1.Every Broker has in built Service Registry
+     Moleculer has built in in-memory registry, we can use that registry directly.
+
+2.All services local or remote are registered with service registry as soon you create   service
+
+3.Molecular has built in registry called LocalDiscoveryRegistry, which is not using third party registry servers
+  like apache zoo keeper,consule,etcd,eurka....
+
+4.if you want to make other servers as service registry -
+
+
+const { ServiceBroker } = require("moleculer");
+
+const broker = new ServiceBroker({
+    transporter: 'TCP',
+    registry: {
+        discoverer: "Local"
+    }
+})
+
+broker.createService({
+    name: 'hello',
+    actions: {
+        hello() {
+            return "hello"
+        }
+    }
+})
+
+
+async function init() {
+    try {
+        await broker.start();
+        broker.repl()
+    }
+    catch (e) {
+        log(e);
+    }
+}
+init();
+
+..............................................................................................
+			High Availability and scalibity
+..............................................................................................
+			   	
+ 				  Load Balancing
+
+In Server-side load balancing, the instances of the service are deployed on multiple servers and then a load balancer is put in front of them. It is generally a hardware load balancer. All the incoming requests traffic firstly comes to this load balancer acting as a middle component. It then decides to which server a particular request must be directed to based on some algorithm.
+
+Disadvantages of Server-side load balancing:
+
+Server side load balancer acts as a single point of failure as if it fails, all the instances of the microservice becomes inaccessible as only load balancer has the list of servers.
+
+Since each microservice will have a separate load balancer, the overall complexity of the system increases and it becomes hard to manage.
+
+The network latency increases as the number of hops for the request increases from one to two with the load balancer, one to the load balancer and then another from load balancer to the microservice.
+
+
+2. Client-side Load Balancing
+
+The instances of the service are deployed on multiple servers. Load balancer's logic is part of the client itself, it holds the list of servers and decides to which server a particular request must be directed to based on some algorithm. These client side load balancers are also known as software load balancers.
+
+Disadvantages of Client-side load balancing
+The load balancer's logic is mixed up with the microservice code.
+
+
+............................
+
+Server side Load balancer is very usefull to manage trafic from outside applications.
+Mobile clients and webclients trafic easily can be managed.
+
+Client side load balancers are very usefull to mangae trafic inside microservice application.
+
+
+Why we need load balancer?
+
+1. To scale services instances
+ A single service may not sufficient to handle multiple concurrent request.
+
+How to select which service instance to be assigned to caller(client), 
+
+   With help of Load Balancer.
+
+Load Balancer balances incomming load and route according to "router algorthims" provided by load balancers.
+
+
+Built-in strategies
+
+ ->RoundRobin strategy
+	This strategy selects a node based on round-robin algorithm.
+   Refer:https://en.wikipedia.org/wiki/Round-robin_DNS
+ ->Random strategy
+	This strategy selects a node randomly.
+ ->CPU usage-based strategy
+	This strategy selects a node which has the lowest CPU usage. Due to the node list can 	be very long, it gets samples and selects the node with the lowest CPU usage from only 	samples instead of the whole node list.
+
+ ->Latency-based strategy
+	This strategy selects a node which has the lowest latency, measured by periodic ping commands. Notice that the strategy only ping one of nodes from a single host.
+
+In Moleculer load balancers are built in, part of Registry , which is part of broker.
+
+Moleculer loader balancer by default uses RoundRobin algorthim, if you want to change different one, you can override
+
+ registry: {
+        strategy: "Latency",
+        strategyOptions: {
+            sampleCount: 15,
+            lowLatency: 20,
+            collectCount: 10,
+            pingInterval: 15
+        }
+    }
+
+In Moleculer load balancers are built in, part of Registry , which is part of broker.
+
+Moleculer loader balancer by default uses RoundRobin algorthim, if you want to change different one, you can override
+
+ registry: {
+        strategy: "Latency",
+        strategyOptions: {
+            sampleCount: 15,
+            lowLatency: 20,
+            collectCount: 10,
+            pingInterval: 15
+        }
+    }
+
+How to implement load balancing?
+
+1.You need to clone the services n- number of times.
+  lets say i have service called "adder" service , i need to run adder service 2 instances
+
+2.Each service is going to run in different nodes. Each node must be identified quickly.
+  Node name should not be hardcoded.
+  In Genernal Node Id would be  - computername_processId
+
+How to test ?
+
+Open 3 cmd 
+PS G:\IBM\2024\May\Nodejs\microservices\loadbalancing\add-service> node services/add.service.js
+
+PS G:\IBM\2024\May\Nodejs\microservices\loadbalancing\add-service> node services/add.service.js
+PS G:\IBM\2024\May\Nodejs\microservices\loadbalancing\add-service> node services/add.service.js
+
+
+
+How to implement load balancing?
+
+1.You need to clone the services n- number of times.
+  lets say i have service called "adder" service , i need to run adder service 2 instances
+
+2.Each service is going to run in different nodes. Each node must be identified quickly.
+  Node name should not be hardcoded.
+  In Genernal Node Id would be  - computername_processId
+
+..................................................................................
+		     Fault tolerance  Design pattern
+..................................................................................
+
+In Microservices, services are talking each other, while talking there are possiblity.
+
+A. Callee Service may slow than expected duration by caller. - Slow calls
+
+B. Callee may throw error , then caller gets exception which will be progataged across the app
+   which may stop the entire app.
+
+How to deal / solve the problem of above one ?
+
+   Via Realibility pattern, we can solve the Problem.
+
+Moleculer Provides Fault tolerance , through which we can solve
+ 
+
+-Timeout
+
+    Service-X  is calling Service-Y
+
+1.You may get Result(succees/errors) "on time".
+
+2.YOu may not get any thing beyond time.
+
+3.Timeout defines deadlines for services
+
+
+eg:
+   Service-X expects result in 500 ms from Service-Y, What if Service-Y not able to give result within that time line , Service-Y will throw TimeoutException.
+
+Now you need to decide how to Handle TimeoutException?
+
+ -throw exception and handle it
+ -You can have alternate fallback api to return result to the caller.
+
+
+Any falut tolerence alogorthim in moleculer can be configured in two places
+
+1.At broker level
+const broker = new ServiceBroker({
+    requestTimeout: 5 * 1000 // in milliseconds
+});
+
+2.At service level
+
+broker.call("posts.find", {}, { timeout: 3000 });
+
+
+services/timeoutmain.service.js
+
+
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker({
+    transporter: "TCP",
+    requestTimeout: 5 * 1000 // in milliseconds
+
+});
+broker.createService({
+    name: 'main',
+    actions: {
+
+        begin: {
+            // Call the 'getCachedResult' method when error occurred
+            fallback: "getCachedResult",
+            async handler(ctx) {
+                const { a, b, timeout } = ctx.params
+                let res = await ctx.call('remotetimeout.calculate', { a, b }, {
+                    timeout: timeout
+                })
+                console.log(`Result Got From Remote Services ${res}`)
+            }
+        }
+
+    },
+    methods: {
+        getCachedResult() {
+            return `From the Cache 0`
+        }
+    }
+})
+async function init() {
+    await broker.start()
+    broker.repl()
+}
+init();
+
+services/remotetimeout.service.js
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker({
+    transporter: "TCP",
+    requestTimeout: 5 * 1000 // in milliseconds
+});
+
+broker.createService({
+    name: 'remotetimeout',
+    actions: {
+        async calculate(ctx) {
+            const { a, b } = ctx.params
+            return new Promise((resolve, reject) => {
+                setTimeout(resolve, 3000, `${a + b} - ${broker.nodeID} `)
+            })
+        }
+    }
+})
+
+async function init() {
+    await broker.start()
+    broker.repl()
+}
+init();
+
+call main.begin --a 10 --b 20 --timeout 5000
+>> Call 'main.begin' with params: { a: 10, b: 20, timeout: 5000 } with meta: { '$repl': true } with options: {}
+Result Got From Remote Services 30 - laptop-r2tggfdl-13828
+
+call main.begin --a 10 --b 20 --timeout 2000
+>> Call 'main.begin' with params: { a: 10, b: 20, timeout: 2000 } with meta: { '$repl': true } with options: {}
+[2022-05-27T09:43:13.543Z] WARN  laptop-r2tggfdl-13612/BROKER: Request 'remotetimeout.calculate' is timed out. { requestID: '6e3a1abe-432d-41eb-9311-ee9026e207e5', nodeID: 'laptop-r2tggfdl-13828', timeout: 2000 }
+[2022-05-27T09:43:13.544Z] WARN  laptop-r2tggfdl-13612/MAIN: The 'main.begin' request is failed. Return fallback response. { requestID: '6e3a1abe-432d-41eb-9311-ee9026e207e5', err: "Request is timed out when call 'remotetimeout.calculate' action on 'laptop-r2tggfdl-13828' node." }
+>> Execution time:2s
+>> Response:
+'From the Cache 0'
+.....................................................................................	
+
+.....................................................................................	
+.....................................................................................
+			Moleculer cli and Moleculer Runner
+....................................................................................
+
+Moleculer Runner
+ Moleculer Runner is a helper script that helps you run Moleculer projects. With it, you don’t need to create a ServiceBroker instance with options. Instead, you can create a moleculer.config.js file in the root of repo with broker options. Then simply call the moleculer-runner in NPM script, and it will automatically load the configuration file, create the broker and load the services. Alternatively, you can declare your configuration as environment variables.
+
+Moleculer cli
+ Provides features
+1.create projects
+2.mananage project life cycles
+3.which embeded moleculer runner.
+
+npm i -g moleculer-cli
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
