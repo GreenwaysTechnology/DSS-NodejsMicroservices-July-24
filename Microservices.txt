@@ -2164,5 +2164,225 @@ $ call $node.list
 
 broker.createService({})
 .....................................................................................
+			 How to write services outside and link
+...................................................................................
+
+services/math.service.js
+// Export the schema of service
+module.exports = {
+    name: "math",
+    actions: {
+        add(ctx) {
+            return Number(ctx.params.a) + Number(ctx.params.b);
+        },
+        sub(ctx) {
+            return Number(ctx.params.a) - Number(ctx.params.b);
+        }
+    }
+}
+
+services/main.service.js
+const { ServiceBroker } = require('moleculer')
+
+// Create broker
+let broker = new ServiceBroker();
 
 
+
+async function main() {
+    try {
+        // Load service
+        broker.loadService("./services/math.service");
+        // Start broker
+        broker.start();
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+.....................................................................................
+			Services Depenencies
+.....................................................................................
+
+if a service is depending  on other services, we need load depandant service first
+
+eg
+ i have two services
+ a and b
+
+ i have to load a service only after b is ready.
+
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker()
+
+broker.createService({
+    name: 'comments',
+    actions: {
+        //public method
+        getUser: {
+            handler(ctx) {
+                 return 'comments'
+            }
+        }
+    },
+     created() {
+        // Fired when the service instance created (with `broker.loadService` or `broker.createService`)
+        console.log('comments Service is created')
+    },
+
+    merged() {
+        // Fired after the service schemas merged and before the service instance created
+        console.log(' comments service is merged')
+    },
+
+    async started() {
+        // Fired when broker starts this service (in `broker.start()`)
+        console.log('comments service started')
+    },
+    async stopped() {
+        // Fired when broker stops this service (in `broker.stop()`)
+        console.log('comments service stopped')
+    }
+})
+
+broker.createService({
+    name: 'user',
+    dependencies: ["comments"],
+    actions: {
+        //public method
+        getUser: {
+            handler(ctx) {
+                 return 'user'
+            }
+        }
+    },
+     created() {
+        // Fired when the service instance created (with `broker.loadService` or `broker.createService`)
+        console.log('user Service is created')
+    },
+
+    merged() {
+        // Fired after the service schemas merged and before the service instance created
+        console.log(' user service is merged')
+    },
+
+    async started() {
+        // Fired when broker starts this service (in `broker.start()`)
+        console.log('user service started')
+    },
+    async stopped() {
+        // Fired when broker stops this service (in `broker.stop()`)
+        console.log('user service stopped')
+    }
+})
+
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+outPut:
+ comments service is merged
+comments Service is created
+ user service is merged
+user Service is created
+
+comments service started
+user service started
+.....................................................................................
+			 Serializers
+
+moleculer supports more types of serizliers
+
+Built in serializers:
+....................
+
+JSON serializer
+Avro serializer
+MsgPack serializer
+ProtoBuf serializer
+Custom serializer
+
+Note:
+ json is default serializer , so we dont need to configure
+
+How to configure seralizer?
+
+const { ServiceBroker } = require('moleculer')
+const POSTS = require('../mock-data/posts')
+
+const broker = new ServiceBroker({
+    serializer: "JSON"
+})
+
+broker.createService({
+    name: 'posts',
+    actions: {
+        list(ctx) {
+            return POSTS
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+....................................................................................
+			Promises and Moleculer
+...................................................................................
+const { ServiceBroker } = require('moleculer')
+const POSTS = require('../mock-data/posts')
+
+const broker = new ServiceBroker({
+    serializer: "JSON"
+})
+
+broker.createService({
+    name: 'postclient',
+    actions: {
+       async list(ctx) {
+           return await ctx.call('posts.list')
+        }
+    }
+})
+
+broker.createService({
+    name: 'posts',
+    actions: {
+        list(ctx) {
+            return new this.Promise((resolve, reject) => {
+                setTimeout(resolve, 5000, POSTS)
+            })
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
